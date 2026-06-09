@@ -84,9 +84,9 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            muralisocial123/ust-retail-app:v1.1.0
-            muralisocial123/ust-retail-app:latest
-            muralisocial123/ust-retail-app:${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/ust-retail-app:v1.1.0
+            ${{ secrets.DOCKER_USERNAME }}/ust-retail-app:latest
+            ${{ secrets.DOCKER_USERNAME }}/ust-retail-app:${{ github.sha }}
 # CI trigger test            
 
 
