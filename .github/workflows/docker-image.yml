@@ -86,4 +86,14 @@ jobs:
             muralisocial123/ust-retail-app:v1.1.0
             muralisocial123/ust-retail-app:latest
             muralisocial123/ust-retail-app:${{ github.sha }}
+# CI trigger test            
+
+
+
+
+
+
+
+
+            
 
