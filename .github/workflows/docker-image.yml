@@ -1,34 +1,89 @@
-name: Build and Push Docker Images
+# name: Build and Push Docker Images
+
+# on:
+#   push:
+#     branches:
+#       - master
+
+# jobs:
+
+#   build-and-push:
+
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout code 
+#         uses: actions/checkout@v3 
+
+#       - name: Login to Docker Hub 
+#         uses: docker/login-action@v2
+#         with:
+#           username: ${{secrets.DOCKERHUB_USERNAME}} 
+#           password: ${{secrets.DOCKERHUB_PASSWORD}} 
+
+#       - name: Set up Docker Buildx 
+#         uses: docker/setup-buildx-action@v3 
+
+#       - name: Build and Push Docker Image 
+#         uses: docker/build-push-action@v5 
+#         with:
+#           context: . 
+#           file: ./Dockerfile 
+#           push: true 
+#           tags: muralisocial123/ust-retail-app:v1.1.0 
+
+
+name: FSS Retail CI - Build and Push Docker Images
 
 on:
   push:
     branches:
-      - master
+      - main
 
+  pull_request:
+    branches:
+      - main
 jobs:
-
-  build-and-push:
-
+  build-test-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code 
-        uses: actions/checkout@v3 
+      - name: Checkout source code
+        uses: actions/checkout@v4
 
-      - name: Login to Docker Hub 
-        uses: docker/login-action@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          username: ${{secrets.DOCKERHUB_USERNAME}} 
-          password: ${{secrets.DOCKERHUB_PASSWORD}} 
+          node-version: 18
 
-      - name: Set up Docker Buildx 
-        uses: docker/setup-buildx-action@v3 
+      - name: Install dependencies
+        run: npm install
 
-      - name: Build and Push Docker Image 
-        uses: docker/build-push-action@v5 
+      - name: Run tests
+        run: npm test --if-present
+
+      - name: Build application
+        run: npm run build --if-present
+
+      - name: Login to Docker Hub
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
         with:
-          context: . 
-          file: ./Dockerfile 
-          push: true 
-          tags: muralisocial123/ust-retail-app:v1.1.0 
-             
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Push Docker Image
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            muralisocial123/ust-retail-app:v1.1.0
+            muralisocial123/ust-retail-app:latest
+            muralisocial123/ust-retail-app:${{ github.sha }}
+
